@@ -1,6 +1,7 @@
 from django import forms
 from .models import Users
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.forms import AuthenticationForm
 
 
 class RegistForm(forms.ModelForm):
@@ -20,3 +21,13 @@ class RegistForm(forms.ModelForm):
     user.save()
     return user
     
+
+# class UserLoginForm(forms.Form):
+#   email = forms.EmailField(label='メールアドレス')
+#   password = forms.CharField(label='パスワード', widget=forms.PasswordInput())
+class UserLoginForm(AuthenticationForm):
+  username = forms.EmailField(label='メールアドレス')
+  password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
+  remember = forms.BooleanField(label='ログイン状態を保持する', required=False)
+  
+ 
