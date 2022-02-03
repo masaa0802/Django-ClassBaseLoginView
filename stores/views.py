@@ -1,9 +1,14 @@
+from email import message
 from itertools import product
 from re import template
-from django.shortcuts import render
+from urllib import response
+from django.http import JsonResponse, Http404
+from django.shortcuts import render, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+
 
 import os
 from .models import(
@@ -48,3 +53,13 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
   model = Products
   template_name = os.path.join('stores', 'product_detail.html')
   
+
+@login_required
+def add_product(request):
+  if request.is_ajax:
+    product_id = request.POST.get('product_id')
+    quantity = request.POST.get('quantity')
+    product = get_object_or_404(Products, id = product_id)
+    if int(quantity) > product.stock:
+      response = JsonResponse({'message': '在庫数を越えています'})
+      
