@@ -1,5 +1,6 @@
 from email import message
 from itertools import product
+from pipes import Template
 from re import template
 from urllib import response
 from django.http import JsonResponse, Http404
@@ -8,11 +9,12 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.views.generic.base import TemplateView
 
 
 import os
 from .models import(
-  Products,
+  Products,Carts,CartItems
 )
 
 class ProductListView(LoginRequiredMixin, ListView):
@@ -53,6 +55,13 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
   model = Products
   template_name = os.path.join('stores', 'product_detail.html')
   
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['is_added'] = CartItems.objects.filter(
+      cart_id = self.request.user.id,
+      product_id = kwargs.get('object').id
+    ).first()
+    return context   
 
 @login_required
 def add_product(request):
@@ -62,4 +71,44 @@ def add_product(request):
     product = get_object_or_404(Products, id = product_id)
     if int(quantity) > product.stock:
       response = JsonResponse({'message': '在庫数を越えています'})
-      
+      response.status_code = 403
+      return response
+    if int(quantity) <= 0:
+      response = JsonResponse({'message': '0より大きい値を入力してください'})
+      response.status_code = 403
+      return response
+    cart = Carts.objects.get_or_create(
+      user = request.user
+    )
+    if all([product_id, cart, quantity]):
+      CartItems.objects.save_item(
+        quantity = quantity, product_id=product_id,
+        cart=cart[0]
+      )
+    return JsonResponse({'message':'商品をカートに追加しました'})
+
+class CartItemsView(LoginRequiredMixin, TemplateView):
+  template_name = os.path.join('stores','cart_items.html')
+
+  def get_context_data(self, **kwargs):
+      context = super().get_context_data(**kwargs)
+      user_id = self.request.user.id
+      query = CartItems.objects.filter(cart_id = user_id)
+      total_price = 0
+      items = []
+      for item in query.all():
+        total_price += item.quantity * item.product.price
+        picture = item.product.productpictures_set.first()
+        picture = picture.picture if picture else None
+        in_stock = True if item.product.stock >= item.quantity else False
+        tmp_item = {
+          'quantity': item.quantity,
+          'picture' : picture,
+          'name' : item.product.name,
+          'price': item.product.price,
+          'in_stock': in_stock,
+        }
+        items.append(tmp_item)
+      context['total_price'] = total_price
+      context['items'] = items
+      return context 
