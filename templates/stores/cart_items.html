@@ -20,6 +20,10 @@
         在庫数を越えています。変更してください
       {% endif %}
     </td>
+    <td align = "right">
+      <a class="btn btn-primary" href="{% url 'stores:update_cart' pk=item.id %}">変更する</a>
+      <a class="btn btn-danger" href="{% url 'stores:delete_cart' pk=item.id %}">削除する</a>
+    </td>
   </tr>
 {% endfor %}
 </tbody>
