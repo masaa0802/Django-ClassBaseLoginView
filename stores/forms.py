@@ -20,3 +20,13 @@ class CartUpdateForm(forms.ModelForm):
         if quantity > cart_item.product.stock:
             raise ValidationError(f'在庫数を超えています。{cart_item.product.stock}以下にしてください')
 
+class AddressInputForm(forms.Model):
+    address = forms.CharField(label='住所',widget=forms.TextInput(attrs={'size':'80'}))
+
+    class Meta:
+        model = Address
+        fields = ['zip_code', 'prefecture', 'address']
+        labels = {
+            'zip_code': '郵便番号',
+            'prefecture': '都道府県',
+        }

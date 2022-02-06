@@ -85,7 +85,20 @@ class CartItems(models.Model):
     unique_together = [['product', 'cart']]
 
 
-    
+class Addresses(models.Model):
+  zip_code = models.CharField(max_length=8)
+  prefecture = models.CharField(max_length=10)
+  address = models.CharField(max_length=200)
+  user = models.ForeignKey(
+    Users,
+    on_delete=models.CASCADE,
+  )
+  class Meta:
+    db_table = 'addresses'
+
+  def __str__(self):
+    return f'{self.zip_code} {self.prefecture} {self.address}'
+
 
 
 

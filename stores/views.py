@@ -127,3 +127,16 @@ class CartDeleteView(LoginRequiredMixin, DeleteView):
   template_name = os.path.join('stores','delete_cart.html')
   model = CartItems
   success_url = reverse_lazy('stores:cart_items')
+
+
+class InputAddressView(LoginRequiresMixin, CreateView):
+  template_name = os.path.join('store', 'input_address.html')
+  form_class = AddressInputFrom
+  success_url = reverse_lazy('stores:cart_items')
+
+  def get(self, request):
+    cart = get_object_or_404(Carts, user_id=request.user.id)
+    if not cart.cartitems_set.all():
+      raise Http404('商品が入っていません')
+    return super().get(request)
+    

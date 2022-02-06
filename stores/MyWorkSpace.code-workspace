@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": "..\\.."
+    },
+    {
+      "path": "..\\..\\..\\..\\SHAREMONEY"
+    }
+  ],
+  "settings": {
+    "git.ignoreLimitWarning": true
+  }
+}
