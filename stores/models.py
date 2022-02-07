@@ -95,7 +95,10 @@ class Addresses(models.Model):
   )
   class Meta:
     db_table = 'addresses'
-
+    unique_together = [
+      ['zip_code', 'prefecture', 'address', 'user']
+    ]
+    
   def __str__(self):
     return f'{self.zip_code} {self.prefecture} {self.address}'
 
